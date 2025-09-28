@@ -1,6 +1,6 @@
 package com.form;
 
-import com.panel.*; // Import your panels (DonorPanel, UserPanel, etc.)
+import com.panel.*; 
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,20 +12,16 @@ public class CMS extends JFrame {
         this.userRole = role;
         this.userId = userId;
 
-        // Frame settings
         setTitle("Charity Management System - Dashboard");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
-        // Welcome label
         JLabel lbl = new JLabel("Welcome to Charity Management System (" + role + ")", JLabel.CENTER);
         lbl.setFont(new Font("Arial", Font.BOLD, 16));
 
-        // Tabbed Pane
+       
         JTabbedPane tabs = new JTabbedPane();
 
-        // Role-based access control
         if (role.equalsIgnoreCase("Admin")) {
             tabs.add("Users", new UserPanel());
             tabs.add("Donors", new DonorPanel());
@@ -41,7 +37,6 @@ public class CMS extends JFrame {
             tabs.add("Events", new EventPanel());
         }
 
-        // Layout
         setLayout(new BorderLayout());
         add(lbl, BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
