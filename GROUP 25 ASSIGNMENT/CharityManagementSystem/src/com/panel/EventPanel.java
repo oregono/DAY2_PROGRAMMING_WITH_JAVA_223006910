@@ -1,92 +1,50 @@
 package com.panel;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
+import com.form.DB;
 
-public class EventPanel extends JFrame {
-    private JTextField nameField, dateField, locationField;
-    private JButton addBtn, viewBtn;
-    private JTextArea displayArea;
+public class EventPanel extends JPanel {
+
+    private JTable eventTable;
+    private DefaultTableModel tableModel;
+    private JScrollPane scrollPane;
 
     public EventPanel() {
-        setTitle("Event Management");
-        setSize(500, 400);
-        setLocationRelativeTo(null);
-        setLayout(new GridLayout(5, 2, 10, 10));
+        setLayout(new BorderLayout());
 
-        add(new JLabel("Event Name:"));
-        nameField = new JTextField();
-        add(nameField);
+        String[] columns = {"eventid", "name", "Date", "Description","total_collected" };
+        tableModel = new DefaultTableModel(columns, 0);
+        eventTable = new JTable(tableModel);
+        scrollPane = new JScrollPane(eventTable);
+        add(scrollPane, BorderLayout.CENTER);
 
-        add(new JLabel("Event Date (YYYY-MM-DD):"));
-        dateField = new JTextField();
-        add(dateField);
-
-        add(new JLabel("Location:"));
-        locationField = new JTextField();
-        add(locationField);
-
-        addBtn = new JButton("Add Event");
-        add(addBtn);
-
-        viewBtn = new JButton("View Events");
-        add(viewBtn);
-
-        displayArea = new JTextArea();
-        displayArea.setEditable(false);
-        add(new JScrollPane(displayArea));
-
-        addBtn.addActionListener(e -> addEvent());
-        viewBtn.addActionListener(e -> viewEvents());
+        loadEvents();
     }
 
-    private void addEvent() {
-        String name = nameField.getText();
-        String date = dateField.getText();
-        String location = locationField.getText();
+    private void loadEvents() {
+        try (Connection con = DB.getConnection()) {
+            Statement stmt = con.createStatement(
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY
+            );
+            ResultSet rs = stmt.executeQuery("SELECT eventid, name,date,description, total_collected FROM event");
 
-        String url = "jdbc:mysql://localhost:3306/cms_db";
-        String dbUser = "root";
-        String dbPass = "";
-
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-            String query = "INSERT INTO events (event_name, event_date, location) VALUES (?, ?, ?)";
-            PreparedStatement pst = conn.prepareStatement(query);
-            pst.setString(1, name);
-            pst.setDate(2, java.sql.Date.valueOf(date));
-            pst.setString(3, location);
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Event added successfully!");
-            conn.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid date format. Use YYYY-MM-DD.");
-        }
-    }
-
-    private void viewEvents() {
-        String url = "jdbc:mysql://localhost:3306/cms_db";
-        String dbUser = "root";
-        String dbPass = "";
-
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-            String query = "SELECT * FROM events";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-
-            displayArea.setText("");
+            tableModel.setRowCount(0);
             while (rs.next()) {
-                displayArea.append(
-                        "ID: " + rs.getInt("id") +
-                        ", Name: " + rs.getString("event_name") +
-                        ", Date: " + rs.getDate("event_date") +
-                        ", Location: " + rs.getString("location") + "\n");
+                Object[] row = {
+                        rs.getInt("eventid"),
+                        rs.getString("name"),
+                        rs.getDate("date"),
+                        rs.getString("description"),
+                        rs.getDouble("total_collected")
+                };
+                tableModel.addRow(row);
             }
-            conn.close();
-        } catch (SQLException ex) {
+
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
         }
     }
