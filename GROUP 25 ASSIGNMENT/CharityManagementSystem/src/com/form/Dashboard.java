@@ -14,3 +14,4 @@ public class Dashboard extends JFrame {
         setVisible(true);
     }
 }
+
