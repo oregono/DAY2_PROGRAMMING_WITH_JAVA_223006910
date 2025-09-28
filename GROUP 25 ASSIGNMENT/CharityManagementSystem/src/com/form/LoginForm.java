@@ -73,7 +73,7 @@ public class LoginForm extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Login Successful!");
                     dispose();
                     // Open the dashboard or CMS
-                    new CMS(role); 
+                    new CMS(role, userId); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid username or password");
                 }
