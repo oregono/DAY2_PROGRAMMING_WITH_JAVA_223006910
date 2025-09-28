@@ -3,7 +3,7 @@ package com.form;
 import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
-import com.panel.UserPanel;
+import com.panel.UserPanel; // for later use or dashboard
 
 public class LoginForm extends JFrame implements ActionListener {
 
@@ -72,6 +72,7 @@ public class LoginForm extends JFrame implements ActionListener {
 
                     JOptionPane.showMessageDialog(this, "Login Successful!");
                     dispose();
+            
                     new CMS(role, userId); 
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid username or password");
