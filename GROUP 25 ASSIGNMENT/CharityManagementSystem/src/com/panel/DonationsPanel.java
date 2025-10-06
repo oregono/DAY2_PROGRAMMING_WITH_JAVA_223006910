@@ -15,7 +15,7 @@ public class DonationsPanel extends JPanel {
     public DonationsPanel() {
         setLayout(new BorderLayout());
 
-        String[] columns = {"DonationID", "Type", "Amount", "CreatedAt"};
+        String[] columns = {"DonationID", "donorid", "Type", "Amount", "CreatedAt"};
         tableModel = new DefaultTableModel(columns, 0);
         donationsTable = new JTable(tableModel);
         scrollPane = new JScrollPane(donationsTable);
@@ -24,30 +24,29 @@ public class DonationsPanel extends JPanel {
         loadDonations();
     }
 
-    private void loadDonations() {
-        try (Connection con = DB.getConnection()) {
-            Statement stmt = con.createStatement(
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
+    public void loadDonations() {
+        try (Connection con = DB.getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT donationid, donorid, types, amount, createdAt FROM donations")) {
 
-            String query = "SELECT donationid, types, amount, createdAt FROM donation";
-            ResultSet rs = stmt.executeQuery(query);
+            tableModel.setRowCount(0);
 
-            tableModel.setRowCount(0); 
             while (rs.next()) {
                 Object[] row = {
                         rs.getInt("donationid"),
+                        rs.getInt("donorid"),
                         rs.getString("types"),
                         rs.getDouble("amount"),
                         rs.getTimestamp("createdAt")
                 };
                 tableModel.addRow(row);
             }
-
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
         }
     }
 }
+
+
+
 
