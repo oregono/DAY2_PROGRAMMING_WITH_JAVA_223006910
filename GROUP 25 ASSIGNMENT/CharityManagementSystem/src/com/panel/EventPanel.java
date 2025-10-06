@@ -49,3 +49,4 @@ public class EventPanel extends JPanel {
         }
     }
 }
+
